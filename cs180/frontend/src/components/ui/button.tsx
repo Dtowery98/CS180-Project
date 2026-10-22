@@ -8,7 +8,11 @@ type ButtonProps = {
 
 const Button = ({ text, onClick, className = "" } : ButtonProps) => {
   return (
-    <button type="button" onClick={onClick} className={className}>
+    <button 
+      type="button" 
+      onClick={onClick} 
+      className={className}
+      style={{ cursor: 'pointer' }}>
       {text}
     </button>
   );
