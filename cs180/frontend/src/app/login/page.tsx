@@ -1,6 +1,6 @@
 "use client";
 
-import LeftSide from "@/components/login/bubbleCircle"
+import LeftSide from "@/components/login/defaultPanel"
 import InputBox from "@/components/ui/singleLineTextBox"
 import Button from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -14,7 +14,7 @@ const Login = () => {
             <LeftSide>
             </LeftSide>
         </div>
-        <div className="flex flex-col items-center justify-center w-1/2 bg-black">
+        <div className="flex flex-col items-center justify-center -translate-x-4 w-1/2 bg-black">
             <h1 className="text-[#D4D4D4] text-center text-[20px] sm:text-[20px] md:text-[22px] lg:text-[25px] xl:text-[25px]">
                 Log in with ucr email
             </h1>
