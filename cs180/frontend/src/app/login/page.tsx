@@ -18,7 +18,7 @@ const Login = () => {
             <h1 className="text-[#D4D4D4] text-center text-[20px] sm:text-[20px] md:text-[22px] lg:text-[25px] xl:text-[25px]">
                 Log in with ucr email
             </h1>
-            <div className="justify-center">
+            <div className="flex flex-col items-center justify-center">
                 <InputBox 
                     placeholder="Email" 
                     className="mx-auto block text-[#A3A3A3] text-3xl bg-[#121212] 
@@ -33,7 +33,19 @@ const Login = () => {
                     text="Log in"
                     onClick={() => router.push("/")}
                     className="bg-[#F5F5F5] text-[#121212] px-6 py-3 hover:bg-gray-400
-                    w-[30vw] h-[10vh] text-2xl rounded-xl">
+                    w-[30vw] h-[10vh] text-2xl rounded-full">
+                </Button>
+                <Button
+                    text="Forgot password?"
+                    onClick={() => router.push("/")}
+                    className="text-[#A3A3A3] hover:text-gray-400 text-2xl mt-3">
+                </Button>
+                <Button
+                    text="Sign up"
+                    onClick={() => router.push("/")}
+                    className="bg-[#121212] text-[#F5F5F5] px-6 py-3 hover:bg-gray-400
+                    border-[#838383] border-2 border-solid
+                    w-[30vw] h-[10vh] text-2xl rounded-full mt-4">
                 </Button>
             </div>
         </div>

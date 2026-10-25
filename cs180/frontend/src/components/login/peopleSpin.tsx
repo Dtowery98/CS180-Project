@@ -37,10 +37,7 @@ const PeopleSpin = () => {
                 >
                 {/* Counter-rotate the image to keep it upright */}
                 <div
-                    className="h-full w-full animate-[spin_60s_linear_reverse]"
-                    style={{
-                        transform: `rotate(${-angle}deg)` ,
-                    }}
+                    className="h-full w-full"
                 >
                     <img
                     src={person}

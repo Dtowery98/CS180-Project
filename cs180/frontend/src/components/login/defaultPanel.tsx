@@ -5,12 +5,15 @@ const DefaultPanel = () => {
     <div className="relative flex min-h-screen w-full flex-col bg-black px-5 py-5 text-white md:px-8">
 
       {/* Logo */}
-      <div className="flex items-start">
+      <div className="flex flex-col items-start">
         <img
           src="/rSpaceLogo.svg"
           alt="R'Space logo"
           className="h-auto w-24 object-contain"
         />
+        <h1>
+          Made by BARD
+        </h1>
       </div>
 
       {/* Heading and people */}
