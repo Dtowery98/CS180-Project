@@ -11,7 +11,7 @@ const DefaultPanel = () => {
           alt="R'Space logo"
           className="h-auto w-24 object-contain"
         />
-        <h1>
+        <h1 className="text-[#A3A3A3]">
           Made by BARD
         </h1>
       </div>
