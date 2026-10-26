@@ -16,18 +16,18 @@ const LeftPanelSignUp = () => {
         </div>
 
         {/* Heading and people */}
-        <div className="mx-auto mt-10 flex w-full max-w-md flex-col items-center">
+        <div className="mx-auto mt-2 flex w-full max-w-md flex-col items-center">
             <h1 className="text-center text-5xl font-normal leading-tight tracking-tight md:text-5xl translate-y--10">
-                Find people in your
+                sign up for your
                 <br />
                 R’Space Circle
             </h1>
-            <div className="mt-4 flex w-full justify-center -translate-y-3">
+            <div className="mt-4 flex w-full justify-center -translate-y-1">
                 <Spinner>
                 </Spinner>
             </div>
         </div>
-        <h1 className="text-[#D4D4D4] text-center text-[20px] sm:text-[20px] md:text-[22px] lg:text-[25px] xl:text-[25px]">
+        <h1 className="text-shine mt-7 text-[#D4D4D4] text-center text-[20px] sm:text-[20px] md:text-[22px] lg:text-[25px] xl:text-[25px]">
             your circle is waiting
         </h1>
     </div>

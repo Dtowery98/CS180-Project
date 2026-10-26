@@ -140,3 +140,27 @@ body:has([data-login-page]) {
     @apply font-sans;
   }
 }
+
+
+@keyframes textShine {
+  from {
+    background-position: 150% center;
+  }
+  to {
+    background-position: -150% center;
+  }
+}
+
+.text-shine {
+  background: linear-gradient(
+    110deg,
+    #555 35%,
+    #fff 50%,
+    #555 65%
+  );
+  background-size: 250% auto;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: textShine 8s linear infinite;
+}
