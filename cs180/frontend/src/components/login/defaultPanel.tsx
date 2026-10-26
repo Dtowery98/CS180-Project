@@ -18,12 +18,12 @@ const DefaultPanel = () => {
 
       {/* Heading and people */}
       <div className="mx-auto mt-10 flex w-full max-w-md flex-col items-center">
-        <h1 className="text-center text-5xl font-normal leading-tight tracking-tight md:text-5xl">
+        <h1 className="text-center text-5xl font-normal leading-tight tracking-tight md:text-5xl translate-y--10">
           Find people in your
           <br />
           R’Space Circle
         </h1>
-        <div className="mt-4 flex w-full justify-center">
+        <div className="mt-4 flex w-full justify-center -translate-y-5">
           <Spinner>
           </Spinner>
         </div>
