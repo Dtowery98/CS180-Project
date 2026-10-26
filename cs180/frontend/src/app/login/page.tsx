@@ -18,7 +18,7 @@ const Login = () => {
             <h1 className="text-[#D4D4D4] text-center text-[20px] sm:text-[20px] md:text-[22px] lg:text-[25px] xl:text-[25px]">
                 Log in with UCR email
             </h1>
-            <div className="flex flex-col items-center justify-center">
+            <div className="flex flex-col items-center justify-center mt-4">
                 <InputBox 
                     placeholder="Email" 
                     className="mx-auto block text-[#A3A3A3] text-3xl bg-[#121212] 
