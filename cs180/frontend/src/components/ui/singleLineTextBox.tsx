@@ -15,9 +15,7 @@ const SingleLineTextBox = ({ placeholder, className = "" } : SingleLineTextBoxPr
   };
 
   return (
-    <div>
-      <label htmlFor="username">Enter Name: </label>
-      
+    <div className="p-4">
       <input style={{ paddingLeft: '20px'}}
         id="username"
         type="text"
@@ -26,8 +24,6 @@ const SingleLineTextBox = ({ placeholder, className = "" } : SingleLineTextBoxPr
         onChange={handleChange} // Triggers when text changes
         placeholder={placeholder}
       />
-
-      <p>You typed: {textValue}</p>
     </div>
   );
 }
