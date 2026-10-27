@@ -1,6 +1,6 @@
 import Spinner from "@/components/login/peopleSpin"
 
-const DefaultPanel = () => {
+const LeftPanelLogin = () => {
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-black px-5 py-5 text-white md:px-8">
 
@@ -17,13 +17,13 @@ const DefaultPanel = () => {
       </div>
 
       {/* Heading and people */}
-      <div className="mx-auto mt-10 flex w-full max-w-md flex-col items-center">
+      <div className="mx-auto mt-2 flex w-full max-w-md flex-col items-center">
         <h1 className="text-center text-5xl font-normal leading-tight tracking-tight md:text-5xl translate-y--10">
           Find people in your
           <br />
           R’Space Circle
         </h1>
-        <div className="mt-4 flex w-full justify-center -translate-y-5">
+        <div className="mt-4 flex w-full justify-center -translate-y-1">
           <Spinner>
           </Spinner>
         </div>
@@ -32,4 +32,4 @@ const DefaultPanel = () => {
   );
 };
 
-export default DefaultPanel;
+export default LeftPanelLogin;

@@ -1,6 +1,6 @@
 "use client";
 
-import LeftSide from "@/components/login/defaultPanel"
+import LeftSide from "@/components/login/leftPanelLogin"
 import InputBox from "@/components/ui/singleLineTextBox"
 import Button from "@/components/ui/button";
 import { useRouter } from "next/navigation";
