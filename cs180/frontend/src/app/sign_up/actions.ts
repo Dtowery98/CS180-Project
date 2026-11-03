@@ -9,7 +9,7 @@ export type AuthState = {error? : string; message?: string};
 
 export async function signup(prevState: AuthState, formData: FormData) : Promise<AuthState> {
 const name = String(formData.get("name") ?? "").trim();
- const email = String(formData.get("email") ?? "").trim();
+ const email = String(formData.get("email") ?? "").trim().toLowerCase();
 const password = String(formData.get("password") ?? "");
 
 //ensures all forms are filled out
