@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-
+@import "../styles/untitledui.css";
 @custom-variant dark (&:is(.dark *));
 
 html,
@@ -134,7 +134,7 @@ body:has([data-login-page]) {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-white;
   }
   html {
     @apply font-sans;
