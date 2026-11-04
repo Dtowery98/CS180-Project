@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import LeftSide from "@/components/login/leftPanelLogin"
 import InputBox from "@/components/ui/singleLineTextBox"
 import Button from "@/components/ui/button";
@@ -7,6 +8,26 @@ import { useRouter } from "next/navigation";
 
 const Login = () => {
     const router = useRouter();
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+
+    const handleLogin = async () => {
+        setError("");
+
+        try {
+            const user = await login(email, password);
+
+            if (user) {
+                router.push("/");
+            } else {
+                setError("Invalid email or password.");
+            }
+        } catch {
+            setError("Something went wrong. Please try again.");
+        }
+    };
 
   return (
     <div className="flex h-screen shrink-0 w-full bg-[#050505] overflow-hidden">
