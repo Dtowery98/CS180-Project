@@ -5,6 +5,7 @@ import LeftSide from "@/components/login/leftPanelLogin"
 import InputBox from "@/components/ui/singleLineTextBox"
 import Button from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { login } from "@/services/authService"
 
 const Login = () => {
     const router = useRouter();
@@ -42,17 +43,28 @@ const Login = () => {
             <div className="flex flex-col items-center justify-center mt-4">
                 <InputBox 
                     placeholder="Email" 
+                    type="email"
+                    value={email}
+                    onChange={setEmail}
                     className="mx-auto block text-[#A3A3A3] text-3xl bg-[#121212] 
                     w-[30vw] h-[10vh] border-2 border-solid border-[#2A2A2A] rounded-xl">
                 </InputBox>
                 <InputBox 
                     placeholder="Password" 
+                    type="password"
+                    value={password}
+                    onChange={setPassword}
                     className="mx-auto block text-[#A3A3A3] text-3xl bg-[#121212] 
                     w-[30vw] h-[10vh] border-2 border-solid border-[#2A2A2A] rounded-xl">
                 </InputBox>
+
+                {error && (
+                    <p className="text-red-500 mt-2">{error}</p>
+                )}
+
                 <Button
                     text="Log in"
-                    onClick={() => router.push("/")}
+                    onClick={handleLogin}
                     className="bg-[#F5F5F5] text-[#121212] px-6 py-3 hover:bg-gray-400
                     w-[30vw] h-[10vh] text-2xl rounded-full">
                 </Button>

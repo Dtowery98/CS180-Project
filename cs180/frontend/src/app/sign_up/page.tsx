@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import LeftSide from "@/components/sign_up/leftPanelSignUp"
 import InputBox from "@/components/ui/singleLineTextBox"
 import Button from "@/components/ui/button";
@@ -7,6 +8,10 @@ import { useRouter } from "next/navigation";
 
 const SignUp = () => {
     const router = useRouter();
+
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
   return (
 
@@ -23,16 +28,25 @@ const SignUp = () => {
             <div className="flex flex-col items-center justify-center mt-4">
                 <InputBox 
                     placeholder="Name" 
+                    type="name"
+                    value={name}
+                    onChange={setName}
                     className="mx-auto block text-[#A3A3A3] text-3xl bg-[#121212] 
                     w-[30vw] h-[10vh] border-2 border-solid border-[#2A2A2A] rounded-xl">
                 </InputBox>
                 <InputBox 
                     placeholder="Email" 
+                    type="email"
+                    value={email}
+                    onChange={setEmail}
                     className="mx-auto block text-[#A3A3A3] text-3xl bg-[#121212] 
                     w-[30vw] h-[10vh] border-2 border-solid border-[#2A2A2A] rounded-xl">
                 </InputBox>
                 <InputBox 
                     placeholder="Password" 
+                    type="password"
+                    value={password}
+                    onChange={setPassword}
                     className="mx-auto block text-[#A3A3A3] text-3xl bg-[#121212] 
                     w-[30vw] h-[10vh] border-2 border-solid border-[#2A2A2A] rounded-xl">
                 </InputBox>
