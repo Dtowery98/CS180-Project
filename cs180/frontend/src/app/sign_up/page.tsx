@@ -9,6 +9,8 @@ const SignUp = () => {
     const router = useRouter();
 
   return (
+
+    
     <div className="flex h-screen shrink-0 w-full bg-[#050505] overflow-hidden">
         <div className="w-[50vw]">
             <LeftSide>
@@ -36,7 +38,7 @@ const SignUp = () => {
                 </InputBox>
                 <Button
                     text="Sign up"
-                    onClick={() => router.push("/")}
+                    onClick={() => router.push("/verification")}
                     className="bg-[#F5F5F5] text-[#121212] px-6 py-3 hover:bg-gray-400
                     w-[30vw] h-[10vh] text-2xl rounded-full">
                 </Button>
