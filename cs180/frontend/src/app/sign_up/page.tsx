@@ -11,6 +11,8 @@ const SignUp = () => {
     const [state, formAction, pending] = useActionState(signup, {});
 
   return (
+
+    
     <div className="flex h-screen shrink-0 w-full bg-[#050505] overflow-hidden">
         <div className="w-[50vw]">
             <LeftSide>
