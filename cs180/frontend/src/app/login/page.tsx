@@ -1,14 +1,37 @@
 "use client";
-import {useActionState} from "react";
+
+import { useState } from "react";
 import LeftSide from "@/components/login/leftPanelLogin"
 import InputBox from "@/components/ui/singleLineTextBox"
 import Button from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+
+// login from .actions
 import {login} from "./actions";
 
 const Login = () => {
     const router = useRouter();
     const [state,formAction, pending] = useActionState(login, {});
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+
+    const handleLogin = async () => {
+        setError("");
+
+        try {
+            const user = await login(email, password);
+
+            if (user) {
+                router.push("/");
+            } else {
+                setError("Invalid email or password.");
+            }
+        } catch {
+            setError("Something went wrong. Please try again.");
+        }
+    };
 
   return (
     <div className="flex h-screen shrink-0 w-full bg-[#050505] overflow-hidden">
@@ -25,6 +48,9 @@ const Login = () => {
                 name = "email"
                 type="email"
                     placeholder="Email" 
+                    type="email"
+                    value={email}
+                    onChange={setEmail}
                     className="mx-auto block text-[#A3A3A3] text-3xl bg-[#121212] 
                     w-[30vw] h-[10vh] border-2 border-solid border-[#2A2A2A] rounded-xl">
                 </InputBox>
@@ -32,6 +58,9 @@ const Login = () => {
                 name = "password"
                 type="password"
                     placeholder="Password" 
+                    type="password"
+                    value={password}
+                    onChange={setPassword}
                     className="mx-auto block text-[#A3A3A3] text-3xl bg-[#121212] 
                     w-[30vw] h-[10vh] border-2 border-solid border-[#2A2A2A] rounded-xl">
                 </InputBox>
