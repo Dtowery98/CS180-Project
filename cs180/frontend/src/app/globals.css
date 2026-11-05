@@ -1,8 +1,20 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-
+@import "../styles/untitledui.css";
 @custom-variant dark (&:is(.dark *));
+
+html,
+body {
+  background-color: #000;
+}
+
+html:has([data-login-page]),
+body:has([data-login-page]) {
+  overflow: hidden;
+  overscroll-behavior: none;
+  background-color: #000;
+}
 
 @theme inline {
   --color-background: var(--background);
@@ -49,7 +61,7 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
+  --background: #000;
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -122,9 +134,33 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-white;
   }
   html {
     @apply font-sans;
   }
+}
+
+
+@keyframes textShine {
+  from {
+    background-position: 150% center;
+  }
+  to {
+    background-position: -150% center;
+  }
+}
+
+.text-shine {
+  background: linear-gradient(
+    110deg,
+    #555 35%,
+    #fff 50%,
+    #555 65%
+  );
+  background-size: 250% auto;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: textShine 8s linear infinite;
 }

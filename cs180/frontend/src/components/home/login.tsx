@@ -10,3 +10,7 @@ const Login = () => {
 };
 
 export default Login;
+
+
+// were not using this, we dont have a home page
+// login in is just a button

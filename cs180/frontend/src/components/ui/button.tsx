@@ -6,6 +6,7 @@ type ButtonProps = {
   href?: string;                                        // where it links to
   onClick?: React.MouseEventHandler<HTMLButtonElement>; // optional now
   className?: string;
+  type?: "button" | "submit";
 };
 
 const Button = ({ text, href, onClick, className = "" }: ButtonProps) => {
@@ -20,7 +21,7 @@ const Button = ({ text, href, onClick, className = "" }: ButtonProps) => {
 
   // Otherwise, act like your original button
   return (
-    <button type="button" onClick={onClick} className={`cursor-pointer ${className}`}>
+    <button type={type} onClick={onClick} className={`cursor-pointer ${className}`}>
       {text}
     </button>
   );
