@@ -5,10 +5,13 @@ import LeftSide from "@/components/login/leftPanelLogin"
 import InputBox from "@/components/ui/singleLineTextBox"
 import Button from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { login } from "@/services/authService"
+
+// login from .actions
+import {login} from "./actions";
 
 const Login = () => {
     const router = useRouter();
+    const [state,formAction, pending] = useActionState(login, {});
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -40,8 +43,10 @@ const Login = () => {
             <h1 className="text-[#D4D4D4] text-center text-[20px] sm:text-[20px] md:text-[22px] lg:text-[25px] xl:text-[25px]">
                 Log in with UCR email
             </h1>
-            <div className="flex flex-col items-center justify-center mt-4">
+            <form action={formAction} className="flex flex-col items-center justify-center mt-4">
                 <InputBox 
+                name = "email"
+                type="email"
                     placeholder="Email" 
                     type="email"
                     value={email}
@@ -50,6 +55,8 @@ const Login = () => {
                     w-[30vw] h-[10vh] border-2 border-solid border-[#2A2A2A] rounded-xl">
                 </InputBox>
                 <InputBox 
+                name = "password"
+                type="password"
                     placeholder="Password" 
                     type="password"
                     value={password}
@@ -57,14 +64,12 @@ const Login = () => {
                     className="mx-auto block text-[#A3A3A3] text-3xl bg-[#121212] 
                     w-[30vw] h-[10vh] border-2 border-solid border-[#2A2A2A] rounded-xl">
                 </InputBox>
-
-                {error && (
-                    <p className="text-red-500 mt-2">{error}</p>
-                )}
-
+                {state.error && <p className="text-red-500 text-lg mt-2">{state.error}</p>}
                 <Button
-                    text="Log in"
-                    onClick={handleLogin}
+                    type="submit"
+                    disabled={ pending}
+                    text={pending ? "Logging in." : "Log in"}
+                 
                     className="bg-[#F5F5F5] text-[#121212] px-6 py-3 hover:bg-gray-400
                     w-[30vw] h-[10vh] text-2xl rounded-full">
                 </Button>
@@ -80,7 +85,7 @@ const Login = () => {
                     border-[#838383] border-2 border-solid
                     w-[30vw] h-[10vh] text-2xl rounded-full mt-4">
                 </Button>
-            </div>
+            </form>
         </div>
     </div>
   );
