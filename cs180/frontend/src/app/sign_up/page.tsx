@@ -1,5 +1,5 @@
 "use client";
-import {useActionState} from "react";
+import {useState, useActionState} from "react";
         // use action state 
 import LeftSide from "@/components/sign_up/leftPanelSignUp"
 import InputBox from "@/components/ui/singleLineTextBox"
@@ -45,8 +45,6 @@ const SignUp = () => {
                     w-[30vw] h-[10vh] border-2 border-solid border-[#2A2A2A] rounded-xl">
                 </InputBox>
                 <InputBox 
-                    
-                    name="password"
                     placeholder="Password" 
                     type="password"
                     value={password}

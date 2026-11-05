@@ -6,9 +6,9 @@ import{createClient} from "@/utils/supabase/server";
 
 import type{ AuthState} from "@/app/sign_up/actions";
 
-export async function login(prevState: AuthState, formData: FormData) : Promise<AuthState> {
-    const email = String(formData.get("email") ?? "").trim().toLowerCase();
-    const password = String(formData.get("password") ?? "");
+export async function login(email1: string, password1: string) : Promise<AuthState> {
+    const email = email1.trim().toLowerCase();
+    const password = password1;
 //error message if all fields are not filled
     if (!email || !password){
         return {error: "Please fill all fields"};

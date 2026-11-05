@@ -7,9 +7,10 @@ type ButtonProps = {
   onClick?: React.MouseEventHandler<HTMLButtonElement>; // optional now
   className?: string;
   type?: "button" | "submit";
+  disabled?: boolean;
 };
 
-const Button = ({ text, href, onClick, className = "" }: ButtonProps) => {
+const Button = ({ text, href, onClick, className = "", type = "button", disabled = false }: ButtonProps) => {
   // If an href is given, act as a link
   if (href) {
     return (
