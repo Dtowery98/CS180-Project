@@ -11,19 +11,19 @@ export default function OnboardingNavbar({
 }: OnboardingNavbarProps) {
   return (
     // The whole navbar: a row (flex) with 3 parts: logo | bars | spacer
-    <header className="flex w-full items-start">
+    <header className="flex w-full shrink-0 items-start pb-3">
         
       {/*LOGO */}
-      <div className="w-[140px] shrink-0">
+      <div className="w-20 shrink-0 sm:w-[112px]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/rspace-logo.svg" alt="R'Space" width={140} height={94} />
+        <img src="/rspace-logo.svg" alt="R'Space" width={140} height={94} className="h-auto w-full" />
       </div>
 
       {/* MIDDLE: fills leftover space and centers the bars */}
-      <div className="flex flex-1 justify-center px-6 ">
+      <div className="flex min-w-0 flex-1 justify-center px-3 pt-2 sm:px-6">
         <ol
           aria-label={`Step ${currentStep} of ${totalSteps}`}
-          className="flex w-full max-w-[740px] gap-[15px]"
+          className="flex w-full max-w-[740px] gap-2 sm:gap-[15px]"
         >
           {Array.from({ length: totalSteps }, (_, i) => (
             <li
@@ -38,7 +38,7 @@ export default function OnboardingNavbar({
       </div>
 
       {/* RIGHT: invisible spacer, same width as the logo, keeps bars centered */}
-      <div className="w-[140px] shrink-0" aria-hidden="true" />
+      <div className="w-20 shrink-0 sm:w-[112px]" aria-hidden="true" />
     </header>
   );
 }
