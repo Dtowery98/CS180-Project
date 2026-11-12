@@ -1,13 +1,15 @@
 
 //initialize supabase client from server cookies
-import { createServerClient } from "@supabase/ssr";
+// import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
   // start with a "let the request continue" response
-  let response = NextResponse.next({ request });
+  const response = NextResponse.next({ request });
 
   //creates a supabase client and passes into cookies from the request. If session is expired rebuilds the session and response is wupdated with new cookies.
+  // Temporarily disabled so local pages can run without Supabase.
+  /*
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
@@ -32,6 +34,7 @@ export async function proxy(request: NextRequest) {
   // check supabase session. if it is expired new session is built
   // dont remove this line or users could randomly get logged out
   await supabase.auth.getUser();
+  */
 
   return response;
 }
