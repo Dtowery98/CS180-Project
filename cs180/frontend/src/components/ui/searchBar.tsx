@@ -6,12 +6,14 @@ import { useState, type SubmitEvent } from "react";
 type SearchBarProps = {
   placeholder?: string;
   onSearch?: (query: string) => void; // what happens when the user searches
+  onQueryChange?: (query: string) => void;
   className?: string;
 };
 
 export default function SearchBar({
   placeholder = "Search",
   onSearch,
+  onQueryChange,
   className = "",
 }: SearchBarProps) {
   const [query, setQuery] = useState("");
@@ -53,7 +55,10 @@ export default function SearchBar({
           type="search"
           id="search"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            onQueryChange?.(e.target.value);
+          }}
           placeholder={placeholder}
           autoComplete="off"
           className="block w-full rounded-full border border-[#D4D4D4]/20 bg-[#111] p-3 ps-10 pe-4 text-sm text-[#F5F7FA] placeholder:text-[#D4D4D4]/50 shadow-xs outline-none focus:border-[#D4D4D4]/60 focus:ring-2 focus:ring-[#D4D4D4]/20"
