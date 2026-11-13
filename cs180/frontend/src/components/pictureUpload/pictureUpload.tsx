@@ -340,7 +340,7 @@ export default function FileUpload() {
               )}
               style={{ aspectRatio: "1", width: "min(280px, 100%, max(0px, calc(100cqh - 104px)))" }}
             >
-              <SlimeOrb src="/upload-orb-texture.png" />
+              <SlimeOrb src="/upload-orb-texture.webp" />
             </div>
           </div>
         )}

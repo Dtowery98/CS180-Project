@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import NextImage from "next/image";
 import * as THREE from "three";
 
 type SlimeOrbProps = {
@@ -184,6 +185,9 @@ export default function SlimeOrb({
 }: SlimeOrbProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const params = useRef({ thickness, stiffness, damping, orbSize });
+  const [renderedSource, setRenderedSource] = useState<string | null>(null);
+  const sourceKey = `${src}:${cutout}`;
+  const ready = renderedSource === sourceKey;
 
   useEffect(() => {
     params.current = { thickness, stiffness, damping, orbSize };
@@ -348,6 +352,7 @@ export default function SlimeOrb({
       for (let k = 0; k < N; k++) { vx[k] = -0.9 * rx[k]; vy[k] = -0.9 * ry[k]; }
 
       let ox = 0.03, oy = -0.045, prev = performance.now(), acc = 0;
+      let firstFrame = true;
       const loop = (t: number) => {
         raf = requestAnimationFrame(loop);
         acc += Math.min(0.05, (t - prev) / 1000); prev = t;
@@ -360,6 +365,10 @@ export default function SlimeOrb({
         ox += (tox - ox) * 0.08; oy += (toy - oy) * 0.08;
         for (const l of layers) l.mesh.position.set(ox * l.f * 2 * th, oy * l.f * 2 * th, 0);
         renderer.render(scene, cam);
+        if (firstFrame) {
+          firstFrame = false;
+          setRenderedSource(sourceKey);
+        }
       };
       raf = requestAnimationFrame(loop);
 
@@ -383,15 +392,29 @@ export default function SlimeOrb({
       disposed = true;
       cleanups.forEach((fn) => fn());
     };
-  }, [src, cutout]);
+  }, [src, cutout, sourceKey]);
 
   return (
-    <div className={className} style={{ width: "100%", height: "100%", ...style }}>
+    <div className={className} style={{ position: "relative", width: "100%", height: "100%", ...style }}>
+      {!ready && (
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", pointerEvents: "none" }}>
+          <NextImage
+            src={src}
+            alt=""
+            width={512}
+            height={512}
+            preload
+            unoptimized
+            crossOrigin="anonymous"
+            style={{ width: `${orbSize * 100}%`, height: `${orbSize * 100}%`, objectFit: "contain" }}
+          />
+        </div>
+      )}
       <canvas
         ref={canvasRef}
         role="img"
         aria-label="Soft slime orb that reacts to your pointer"
-        style={{ display: "block", width: "100%", height: "100%", touchAction: "none" }}
+        style={{ position: "relative", display: "block", width: "100%", height: "100%", touchAction: "none", opacity: ready ? 1 : 0 }}
       />
     </div>
   );
