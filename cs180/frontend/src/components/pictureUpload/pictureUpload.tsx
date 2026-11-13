@@ -14,7 +14,6 @@
 import {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
   type ButtonHTMLAttributes,
@@ -24,17 +23,18 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
+import SlimeOrb from "./blob";
+import { Pencil } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
 /* Constants                                                           */
 /* ------------------------------------------------------------------ */
 
-const FRAME_SIZE = 208; // on-screen crop circle, px
-const OUTPUT_SIZE = 320; // exported PNG, px
+const MAX_FRAME_SIZE = 360; // reference crop diameter; shrinks to fit the viewport
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const ENTRANCE_ANIMATION = "animate-[fu-enter_300ms_ease-out]";
 
-type Stage = "idle" | "editing" | "done";
+type Stage = "idle" | "editing";
 
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
@@ -78,20 +78,6 @@ function Icon({ className, children }: IconProps & { children: ReactNode }) {
   );
 }
 
-const ImageIcon = ({ className }: IconProps) => (
-  <Icon className={className}>
-    <rect width="18" height="18" x="3" y="3" rx="2" />
-    <circle cx="9" cy="9" r="2" />
-    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-  </Icon>
-);
-
-const CheckIcon = ({ className }: IconProps) => (
-  <Icon className={className}>
-    <path d="M20 6 9 17l-5-5" />
-  </Icon>
-);
-
 const RotateIcon = ({ className }: IconProps) => (
   <Icon className={className}>
     <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
@@ -99,20 +85,11 @@ const RotateIcon = ({ className }: IconProps) => (
   </Icon>
 );
 
-const UploadIcon = ({ className }: IconProps) => (
-  <Icon className={className}>
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-    <polyline points="17 8 12 3 7 8" />
-    <line x1="12" x2="12" y1="3" y2="15" />
-  </Icon>
-);
-
 const ZoomIcon = ({ className }: IconProps) => (
   <Icon className={className}>
-    <circle cx="11" cy="11" r="8" />
-    <line x1="21" x2="16.65" y1="21" y2="16.65" />
-    <line x1="11" x2="11" y1="8" y2="14" />
-    <line x1="8" x2="14" y1="11" y2="11" />
+    <rect x="3" y="3" width="18" height="18" rx="2" />
+    <circle cx="8" cy="8" r="1" />
+    <path d="m4 17 5-5 3 3 3-5 5 7" />
   </Icon>
 );
 
@@ -156,7 +133,6 @@ function Button({ variant = "primary", className, ...props }: ButtonProps) {
 export default function FileUpload() {
   const [stage, setStage] = useState<Stage>("idle");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -164,7 +140,10 @@ export default function FileUpload() {
   const [isDragging, setIsDragging] = useState(false);
   const [isDragActive, setIsDragActive] = useState(false);
   const [pfpAnimate, setpfpAnimate] = useState(false);
+  const [frameSize, setFrameSize] = useState(MAX_FRAME_SIZE);
 
+  const rootRef = useRef<HTMLDivElement>(null);
+  const frameSizeRef = useRef(MAX_FRAME_SIZE);
   const inputRef = useRef<HTMLInputElement>(null);
   const objectUrlRef = useRef<string | null>(null);
   const dragCounter = useRef(0);
@@ -182,11 +161,19 @@ export default function FileUpload() {
     };
   }, []);
 
-  const resetEditor = () => {
-    setZoom(1);
-    setRotation(0);
-    setOffset({ x: 0, y: 0 });
-  };
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const size = Math.max(1, Math.min(MAX_FRAME_SIZE, entry.contentRect.width - 32, entry.contentRect.height - 120));
+      const ratio = size / frameSizeRef.current;
+      frameSizeRef.current = size;
+      setFrameSize(size);
+      setOffset((previous) => ({ x: previous.x * ratio, y: previous.y * ratio }));
+    });
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, []);
 
   const loadFile = useCallback((file: File | undefined) => {
     if (!file || !ACCEPTED_TYPES.includes(file.type)) return;
@@ -197,7 +184,6 @@ export default function FileUpload() {
         objectUrlRef.current = url;
         setNaturalSize({ width: img.naturalWidth, height: img.naturalHeight });
         setImageUrl(url);
-        setResultUrl(null);
         setZoom(1);
         setRotation(0);
         setOffset({ x: 0, y: 0 });
@@ -272,8 +258,8 @@ export default function FileUpload() {
       w = h;
       h = temp;
     }
-    const maxX = (w - FRAME_SIZE) / 2;
-    const maxY = (h - FRAME_SIZE) / 2;
+    const maxX = (w - frameSize) / 2;
+    const maxY = (h - frameSize) / 2;
 
     if(x > maxX) {
       x = maxX;
@@ -308,69 +294,19 @@ export default function FileUpload() {
   /* ---- Sizing ---- */
 
   // Scale so the image's shorter side exactly fills the circle at zoom 1.
-  const displayScale = useMemo(() => {
-    const { width, height } = naturalSize;
-    if (!width || !height) return 1;
-    return FRAME_SIZE / Math.min(width, height);
-  }, [naturalSize]);
+  const displayScale = naturalSize.width && naturalSize.height
+    ? frameSize / Math.min(naturalSize.width, naturalSize.height)
+    : 1;
 
-  const displaySize = useMemo(
-    () => ({
-      width: naturalSize.width * displayScale * zoom,
-      height: naturalSize.height * displayScale * zoom,
-    }),
-    [naturalSize, displayScale, zoom],
-  );
-
-  /* ---- Export the cropped circle as a PNG ---- */
-
-  const confirmCrop = () => {
-    if (!imageUrl) return;
-    loadImage(imageUrl).then((img) => {
-      const canvas = document.createElement("canvas");
-      canvas.width = OUTPUT_SIZE;
-      canvas.height = OUTPUT_SIZE;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      const outputScale = OUTPUT_SIZE / FRAME_SIZE;
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(OUTPUT_SIZE / 2, OUTPUT_SIZE / 2, OUTPUT_SIZE / 2, 0, Math.PI * 2);
-      ctx.clip();
-
-      // Same order as the CSS preview: move by the pan offset, then rotate
-      // around the image's own center.
-      ctx.translate(
-        OUTPUT_SIZE / 2 + offset.x * outputScale,
-        OUTPUT_SIZE / 2 + offset.y * outputScale,
-      );
-      ctx.rotate((rotation * Math.PI) / 180);
-      const scale = displayScale * zoom * outputScale;
-      ctx.scale(scale, scale);
-      ctx.drawImage(img, -naturalSize.width / 2, -naturalSize.height / 2);
-      ctx.restore();
-
-      setResultUrl(canvas.toDataURL("image/png"));
-      setStage("done");
-    });
-  };
-
-  const startOver = () => {
-    if (objectUrlRef.current) {
-      URL.revokeObjectURL(objectUrlRef.current);
-      objectUrlRef.current = null;
-    }
-    setStage("idle");
-    setImageUrl(null);
-    setResultUrl(null);
-    resetEditor();
+  const displaySize = {
+    width: naturalSize.width * displayScale * zoom,
+    height: naturalSize.height * displayScale * zoom,
   };
 
   /* ---- Render ---- */
 
   return (
-    <div className="flex w-full items-center justify-center">
+    <div ref={rootRef} className="flex h-full w-full items-center justify-center [container-type:size]">
       {/* Keyframes for the entrance animation (replaces tw-animate-css). */}
       <style>{`@keyframes fu-enter{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}`}</style>
 
@@ -382,9 +318,9 @@ export default function FileUpload() {
         onChange={handleInputChange}
       />
 
-      <div className="w-full max-w-sm rounded-xl bg-[#050505] px-6 py-6">
+      <div className={cx("w-full py-2", stage === "idle" ? "max-w-sm px-2 sm:px-6" : "max-w-[860px]")}>
         {stage === "idle" && (
-          <div className="flex flex-col items-center gap-4 py-2 text-center">
+          <div className="flex flex-col items-center gap-2 text-center">
             <div
               role="button"
               tabIndex={0}
@@ -396,43 +332,32 @@ export default function FileUpload() {
               onDragOver={handleDragOver}
               onDrop={handleDrop}
               className={cx(
-                "relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-full border-2 p-6 transition-all duration-200",
-                "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neutral-900",
+                "relative cursor-pointer rounded-full transition-transform duration-200",
+                "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#D4D4D4]",
                 isDragActive
-                  ? "scale-[1.02] border-[#D4D4D4] bg-[#D4D4D4]/5"
-                  : "border-[#D4D4D4]/40 hover:border-[#D4D4D4]/70",
+                  ? "scale-105"
+                  : "hover:scale-[1.02]",
               )}
-              style={{ width: FRAME_SIZE, height: FRAME_SIZE }}
+              style={{ aspectRatio: "1", width: "min(280px, 100%, max(0px, calc(100cqh - 104px)))" }}
             >
-              <div className="flex size-10 items-center justify-center rounded-full">
-                <ImageIcon className="size-4 text-neutral-500" />
-              </div>
-              <p className="text-xs font-medium text-neutral-500">
-                {isDragActive ? "Drop it here" : "Drag & drop an image"}
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center gap-2">
-              <Button variant="outline" onClick={openFilePicker}>
-                Browse Image
-              </Button>
+              <SlimeOrb src="/upload-orb-texture.png" />
             </div>
           </div>
         )}
 
         {stage === "editing" && imageUrl && (
-          <div className={cx(ENTRANCE_ANIMATION, "grid gap-5")}>
-            <div className="flex flex-col items-center gap-4">
+          <div className={cx(ENTRANCE_ANIMATION, "grid gap-4 sm:gap-6")}>
+            <div className="flex w-full items-center justify-center p-4">
+              <div className="relative shrink-0" style={{ width: frameSize, height: frameSize }}>
               <div
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
                 onPointerCancel={handlePointerUp}
                 className={cx(
-                  "relative touch-none select-none overflow-hidden rounded-full border-2 border-neutral-900/40 bg-neutral-100",
+                  "relative h-full w-full touch-none select-none overflow-hidden rounded-full",
                   isDragging ? "cursor-grabbing" : "cursor-grab",
                 )}
-                style={{ width: FRAME_SIZE, height: FRAME_SIZE }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -447,11 +372,23 @@ export default function FileUpload() {
                     transition: pfpAnimate ? "transform 150ms ease-out" : "none",
                   }}
                 />
-                <div className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/40" />
+                <div className="pointer-events-none absolute inset-0 rounded-full border-white" style={{ borderWidth: Math.max(4, frameSize / 36) }} />
               </div>
-
-              <label className="flex w-full items-center gap-3">
-                <ZoomIcon className="size-3.5 shrink-0 text-[#D4D4D4]" />
+              <button
+                type="button"
+                onClick={openFilePicker}
+                aria-label="Edit photo"
+                title="Choose a new photo"
+                className="absolute bottom-[14.65%] right-[14.65%] flex size-11 translate-x-1/2 translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-4 border-[#050505] bg-white text-[#050505] shadow-md transition-colors hover:bg-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                <Pencil className="size-4" aria-hidden="true" />
+              </button>
+              </div>
+            </div>
+            <div className="mx-auto flex w-full max-w-[440px] items-center gap-2 px-1">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <ZoomIcon className="pointer-events-none size-5 shrink-0 text-[#96969E]" />
+                <label className="flex min-w-0 flex-1 items-center">
                 <input
                   type="range"
                   min={1}
@@ -464,14 +401,16 @@ export default function FileUpload() {
                     setZoom(newZoom);
                     setOffset(clampHelper(offset.x, offset.y, newZoom, rotation));}}
                   aria-label="Zoom"
-                  className="h-1.5 w-full cursor-pointer accent-neutral-900"
+                  className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#3B3B43] accent-white [&::-webkit-slider-thumb]:size-7 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[#DEDEE3] [&::-webkit-slider-thumb]:bg-white [&::-moz-range-thumb]:size-7 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-[#DEDEE3] [&::-moz-range-thumb]:bg-white"
                 />
-              </label>
-            </div>
-
-            <div className="flex items-center justify-between gap-2">
+                </label>
+                <ZoomIcon className="size-9 shrink-0 text-[#96969E]" />
+              </div>
               <Button
-                variant="outline"
+                variant="ghost"
+                aria-label="Rotate photo clockwise"
+                title="Rotate photo clockwise"
+                className="size-11 shrink-0 px-2 text-[#96969E]"
                 onClick={() => {
                   const newRotation = rotation + 90;
                   setpfpAnimate(true);
@@ -479,52 +418,12 @@ export default function FileUpload() {
                   setOffset(clampHelper(offset.x, offset.y, zoom, newRotation));
                 }}
               >
-                <RotateIcon className="size-3.5" />
-                Rotate
+                <RotateIcon className="size-8" />
               </Button>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" onClick={startOver}>
-                  Cancel
-                </Button>
-                <Button onClick={confirmCrop}>
-                  <UploadIcon className="size-3.5" />
-                  Use Photo
-                </Button>
-              </div>
             </div>
           </div>
         )}
 
-        {stage === "done" && resultUrl && (
-          <div className={cx(ENTRANCE_ANIMATION, "flex flex-col items-center gap-4")}>
-            <div className="relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={resultUrl}
-                alt="Cropped result"
-                className=""
-                style={{ width: FRAME_SIZE * 0.7, height: FRAME_SIZE * 0.7 }}
-              />
-              <span
-                className={cx(
-                  ENTRANCE_ANIMATION,
-                  "absolute bottom-0 right-1 flex size-7 items-center justify-center rounded-full bg-teal-400 text-white",
-                )}
-              >
-                <CheckIcon className="size-4" />
-              </span>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <p className="text-sm font-medium text-neutral-900">Photo ready</p>
-              <p className="text-xs text-neutral-500">
-                Cropped and optimized for upload.
-              </p>
-            </div>
-            <Button variant="outline" onClick={startOver}>
-              Choose another photo
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );
