@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useActionState } from "react";
+import { useState } from "react";
 import LeftSide from "@/components/login/leftPanelLogin"
 import InputBox from "@/components/ui/singleLineTextBox"
 import Button from "@/components/ui/button";
@@ -22,10 +22,8 @@ const Login = () => {
         try {
             const user = await login(email, password);
 
-            if (user) {
-                router.push("/");
-            } else {
-                setError("Invalid email or password.");
+            if (user.error) {
+                setError(user.error ?? "Something went wrong. Please try again.")
             }
         } catch {
             setError("Something went wrong. Please try again.");

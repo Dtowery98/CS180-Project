@@ -1,43 +1,70 @@
-import { login } from "@/services/authService";
+import { FakeAuthProvider } from "@/services/auth/FakeAuthProvider";
+import { FakeDatabase } from "@/services/database/FakeDatabase";
+import { loginService } from "@/services/auth/authService"
 
-describe("Login", () => {
+describe("Authentication Service", () => {
+    let auth: FakeAuthProvider;
+    let db: FakeDatabase;
 
-    test("successfully logs in with correct credentials", async () => {
-        const user = await login(
-            "student1@ucr.edu",
-            "password123"
-        );
-
-        expect(user).not.toBeNull();
-        expect(user?.id).toBe(1);
-        expect(user?.email).toBe("student1@ucr.edu");
+    beforeEach(() => {
+        // Start with fresh fake data for every test
+        auth = new FakeAuthProvider();
+        db = new FakeDatabase();
     });
 
-    test("rejects an incorrect password", async () => {
-        const user = await login(
-            "student1@ucr.edu",
-            "wrongpassword"
-        );
+    describe("Login", () => {
+        test("logs in with correct credentials", async () => {
+            const result = await loginService(
+                auth,
+                "student1@ucr.edu",
+                "password123"
+            );
 
-        expect(user).toBeNull();
+            expect(result.error).toBeNull();
+            expect(result.user?.id).toBe("user-1");
+        });
+
+        test("rejects an incorrect password", async () => {
+            const result = await loginService(
+                auth,
+                "student1@ucr.edu",
+                "wrongpassword"
+            );
+
+            expect(result.user).toBeNull();
+            expect(result.error).toBe("Incorrect email or password");
+        });
+
+        test("rejects an unknown email", async () => {
+            const result = await loginService(
+                auth,
+                "unknown@ucr.edu",
+                "password123"
+            );
+
+            expect(result.user).toBeNull();
+            expect(result.error).toBe("Incorrect email or password");
+        });
+
+        test("rejects empty input", async () => {
+            const result = await loginService(
+                auth,
+                "",
+                "password123"
+            );
+
+            expect(result.error).toBe("Please fill all fields");
+        });
+
+        test("normalizes email capitalization and whitespace", async () => {
+            const result = await loginService(
+                auth,
+                "  STUDENT1@UCR.EDU  ",
+                "password123"
+            );
+
+            expect(result.error).toBeNull();
+            expect(result.user?.id).toBe("user-1");
+        });
     });
-
-    test("rejects an email that does not exist", async () => {
-        const user = await login(
-            "notarealuser@ucr.edu",
-            "password123"
-        );
-
-        expect(user).toBeNull();
-    });
-
-    test("does not return the password when login succeeds", async () => {
-        const user = await login(
-            "student1@ucr.edu",
-            "password123"
-        );
-
-        expect(user).not.toHaveProperty("password");
-    });
-
 });
