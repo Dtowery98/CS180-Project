@@ -37,7 +37,7 @@ export default function OnboardingPage() {
                         ? `Continue with ${selectedClubs.length} ${selectedClubs.length === 1 ? "club" : "clubs"}`
                         : "Select a club to continue"}
                     disabled={selectedClubs.length === 0}
-                    onClick={() => router.push("/")}
+                    onClick={() => router.push("/onboarding/step4")}
                     className={`mx-auto flex min-h-12 w-full max-w-[520px] shrink-0 items-center justify-center rounded-full border border-[#2A2A2A] px-4 py-3 text-base sm:text-xl disabled:cursor-default ${selectedClubs.length ? "bg-[#F5F7FA] text-[#050505]" : "bg-[#121212] text-[#F9FAFB]"}`}
                 />
             </section>

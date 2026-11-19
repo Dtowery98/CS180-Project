@@ -24,6 +24,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
+import Avatar from "../ui/avatar";
 
 /* ------------------------------------------------------------------ */
 /* Constants                                                           */
@@ -41,6 +42,7 @@ type Stage = "idle" | "editing" | "done";
 /* ------------------------------------------------------------------ */
 
 /** Joins class names, skipping falsy values (stand-in for shadcn's `cn`). */
+
 function cx(...classes: Array<string | false | null | undefined>): string {
   return classes.filter(Boolean).join(" ");
 }
@@ -149,11 +151,15 @@ function Button({ variant = "primary", className, ...props }: ButtonProps) {
   );
 }
 
+type PictureUploadProps = {
+  onComplete?: (photo: string) => void;
+};
+
 /* ------------------------------------------------------------------ */
 /* FileUpload                                                          */
 /* ------------------------------------------------------------------ */
 
-export default function FileUpload() {
+export default function FileUpload({onComplete}: PictureUploadProps) {
   const [stage, setStage] = useState<Stage>("idle");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
@@ -351,7 +357,9 @@ export default function FileUpload() {
       ctx.drawImage(img, -naturalSize.width / 2, -naturalSize.height / 2);
       ctx.restore();
 
-      setResultUrl(canvas.toDataURL("image/png"));
+      const photo = canvas.toDataURL("image/png");   //CHANGE THIS  and 361 for backend upload:
+      setResultUrl(photo);    
+      onComplete?.(photo);   // hand the photo to the parent
       setStage("done");
     });
   };
@@ -499,12 +507,7 @@ export default function FileUpload() {
           <div className={cx(ENTRANCE_ANIMATION, "flex flex-col items-center gap-4")}>
             <div className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={resultUrl}
-                alt="Cropped result"
-                className=""
-                style={{ width: FRAME_SIZE * 0.7, height: FRAME_SIZE * 0.7 }}
-              />
+              <Avatar src={resultUrl} size={FRAME_SIZE * 0.7} />
               <span
                 className={cx(
                   ENTRANCE_ANIMATION,

@@ -5,6 +5,11 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 // ---- Types ------------------------------------------------------------
 type Day = "Mon" | "Tue" | "Wed" | "Thu" | "Fri";
 
+export interface Slot {
+  day: Day;
+  hour: number;
+}
+
 export interface CalendarEvent {
   id: string;
   day: Day;
@@ -15,23 +20,19 @@ export interface CalendarEvent {
   color: string;
 }
 
-interface Slot {
-  day: Day;
-  hour: number;
-}
-
 interface CalendarProps {
-  initialEvents?: CalendarEvent[];
+  events: CalendarEvent[];
+  onEventsChange: (events: CalendarEvent[]) => void;
 }
 
 // ---- Layout constants -------------------------------------------------
 const DAYS: Day[] = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const firstHour = 6;
 const HOURS: number[] = Array.from({ length: 24 - firstHour }, (_, i) => firstHour + i); // 6 AM ... 11 PM
-const ROW_HEIGHT = 56;   // px per hour slot (matches h-14)
-const VISIBLE_ROWS = 9; // only 10 slots visible at once    
-const FOCUS_START = 7;   // 7 AM
-const FOCUS_END = 20;    // 8 PM
+const ROW_HEIGHT = 56;   // px per hour slot (must match h-14 = 56px)
+const VISIBLE_ROWS = 10; // only 10 slots visible at once
+const FOCUS_START = 6;   // 6 AM
+const FOCUS_END = 7;     // 7 AM
 
 const COLORS: string[] = [
   "bg-teal-500",
@@ -49,19 +50,18 @@ function formatHour(h: number): string {
 }
 
 // ---- Component --------------------------------------------------------
-export default function Calendar({ initialEvents = [] }: CalendarProps) {
-  const [events, setEvents] = useState<CalendarEvent[]>(initialEvents);
+export default function Calendar({ events, onEventsChange }: CalendarProps) {
   const [draft, setDraft] = useState<Slot | null>(null); // open form's slot
   const [endHour, setEndHour] = useState(1);
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Center the 7 AM – 8 PM range in the visible window on first render.
+  // Center the FOCUS_START – FOCUS_END range in the visible window on first render.
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const center = ((FOCUS_START + FOCUS_END) / 2) * ROW_HEIGHT;
+    const center = ((FOCUS_START + FOCUS_END) / 2 - firstHour) * ROW_HEIGHT;
     el.scrollTop = center - (VISIBLE_ROWS * ROW_HEIGHT) / 2;
   }, []);
 
@@ -91,17 +91,16 @@ export default function Calendar({ initialEvents = [] }: CalendarProps) {
     e.preventDefault();
     if (!draft || !title.trim()) return;
     if (endHour <= draft.hour || overlaps(draft.day, draft.hour, endHour)) return;
-    const slot = draft;
-    setEvents((prev) => [
-      ...prev,
+    onEventsChange([
+      ...events,
       {
         id: crypto.randomUUID(),
-        day: slot.day,
-        start: slot.hour,
+        day: draft.day,
+        start: draft.hour,
         end: endHour,
         title: title.trim(),
         location: location.trim() || undefined,
-        color: COLORS[prev.length % COLORS.length],
+        color: COLORS[events.length % COLORS.length],
       },
     ]);
     setDraft(null);
@@ -172,8 +171,8 @@ export default function Calendar({ initialEvents = [] }: CalendarProps) {
                     key={ev.id}
                     className={`absolute inset-x-1 overflow-hidden rounded-md px-2 py-1 text-xs leading-tight ${ev.color}`}
                     style={{
-                      top: ev.start * ROW_HEIGHT + 4,
-                      height: (ev.end - ev.start) * ROW_HEIGHT - 8,
+                      top: (ev.start - firstHour) * ROW_HEIGHT,
+                      height: (ev.end - ev.start) * ROW_HEIGHT,
                     }}
                   >
                     <div className="font-bold">{ev.title}</div>
