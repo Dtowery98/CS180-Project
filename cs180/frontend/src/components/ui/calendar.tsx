@@ -22,6 +22,7 @@ interface Slot {
 
 interface CalendarProps {
   initialEvents?: CalendarEvent[];
+  extraEvents?: CalendarEvent[];// events passed in from outside
 }
 
 // ---- Layout constants -------------------------------------------------
@@ -42,39 +43,41 @@ const COLORS: string[] = [
 ];
 
 function formatHour(h: number): string {
-  const h24 = h % 24; // so 24 (end of day) reads as 12 AM
+  const minutes = Math.round((h%1) * 60);
+  const h24 = Math.floor(h) % 24; // so 24 (end of day) reads as 12 AM
   const suffix = h24 < 12 ? "AM" : "PM";
   const hour = h24 % 12 === 0 ? 12 : h24 % 12;
-  return `${hour}:00 ${suffix}`;
+  return `${hour}:${String(minutes).padStart(2,"0")} ${suffix}`;
 }
 
 // ---- Component --------------------------------------------------------
-export default function Calendar({ initialEvents = [] }: CalendarProps) {
+export default function Calendar({ initialEvents = [], extraEvents = [] }: CalendarProps) {
   const [events, setEvents] = useState<CalendarEvent[]>(initialEvents);
   const [draft, setDraft] = useState<Slot | null>(null); // open form's slot
   const [endHour, setEndHour] = useState(1);
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const allEvents = [...events, ...extraEvents];
 
   // Center the 7 AM – 8 PM range in the visible window on first render.
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const center = ((FOCUS_START + FOCUS_END) / 2) * ROW_HEIGHT;
+    const center = ((FOCUS_START + FOCUS_END) / 2 - firstHour) * ROW_HEIGHT;
     el.scrollTop = center - (VISIBLE_ROWS * ROW_HEIGHT) / 2;
   }, []);
 
   // A slot is taken if ANY event covers it, not just one starting there.
   const isOccupied = (day: Day, hour: number): boolean =>
-    events.some((e) => e.day === day && hour >= e.start && hour < e.end);
+    allEvents.some((e) => e.day === day && hour < e.end && hour + 1 > e.start);
 
   const overlaps = (day: Day, start: number, end: number): boolean =>
-    events.some((e) => e.day === day && start < e.end && end > e.start);
+    allEvents.some((e) => e.day === day && start < e.end && end > e.start);
 
   // Latest allowed end time: the next event's start that day, or midnight.
   function maxEndFor(slot: Slot): number {
-    const nextStarts = events
+    const nextStarts = allEvents
       .filter((e) => e.day === slot.day && e.start > slot.hour)
       .map((e) => e.start);
     return nextStarts.length ? Math.min(...nextStarts) : 24;
@@ -165,14 +168,14 @@ export default function Calendar({ initialEvents = [] }: CalendarProps) {
               })}
 
               {/* Layer 2: events, positioned over the slots they cover */}
-              {events
+              {allEvents
                 .filter((ev) => ev.day === day)
                 .map((ev) => (
                   <div
                     key={ev.id}
                     className={`absolute inset-x-1 overflow-hidden rounded-md px-2 py-1 text-xs leading-tight ${ev.color}`}
                     style={{
-                      top: ev.start * ROW_HEIGHT + 4,
+                      top: (ev.start - firstHour) * ROW_HEIGHT + 4,
                       height: (ev.end - ev.start) * ROW_HEIGHT - 8,
                     }}
                   >

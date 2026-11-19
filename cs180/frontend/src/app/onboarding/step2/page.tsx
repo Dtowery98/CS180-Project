@@ -4,9 +4,15 @@ import OnboardingNavbar from "@/components/onboardingNav/onboardingNav";
 import Button from "@/components/ui/button";
 import Calendar from "@/components/ui/calendar";
 import SearchBar from "@/components/ui/searchBar";
+import { searchSections } from "./actions";
 import { useRouter } from "next/dist/client/components/navigation";
+import ClassSearch from "@/components/classSearch/classSearch";
+ import { useState } from "react";
+   import type { SectionResult } from "./actions";
+   import { sectionsToEvents } from "@/utils/schedule";
 
 export default function OnboardingPage() {
+     const [mySections, setMySections] = useState<SectionResult[]>([]);
   return (
     <main className="p-8 bg-[#050505] min-h-screen">
       <OnboardingNavbar currentStep={2} totalSteps={5} />
@@ -14,11 +20,10 @@ export default function OnboardingPage() {
           <h1 className="text-7xl font-light text-white">Make Your Schedule</h1>
         </div>
         <div className="flex flex-col items-center gap-4 mt-8">
-            <SearchBar placeholder="Search students or classes" 
-            onSearch={(q) => console.log("searching for", q)} className="max-w-md"/>
+          <ClassSearch onSavedChange={setMySections} />
         </div>
         <div className="flex justify-center mt-8 gap-4">
-            <Calendar />
+            <Calendar extraEvents={sectionsToEvents(mySections)} />
         </div>
 
     </main>
