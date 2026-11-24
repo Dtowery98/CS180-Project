@@ -91,6 +91,18 @@ describe("Fake Database", () => {
         expect(results[0].crn).toBe("23456");
     });
 
+    test("returns a course when seacrching for specific class", async () => {
+        const results = await db.searchSections("CS111");
+
+        expect(results).toHaveLength(1);
+    });
+
+    test("returns courses when seacrching for classes", async () => {
+        const results = await db.searchSections("CS");
+
+        expect(results).toHaveLength(4);
+    });
+
     test("returns an empty array when a course does not exist", async () => {
         const results = await db.searchSections("INVALID");
 
