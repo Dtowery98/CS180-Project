@@ -9,14 +9,12 @@ import { SupabaseDatabase } from "./database/SupabaseDatabase";
 
 const useFakeBackend = process.env.USE_FAKE_BACKEND === "true";
 
-// Shared fake instances
-const fakeAuth = new FakeAuthProvider();
-const fakeDatabase = new FakeDatabase();
-
 export function createAuthProvider(): IAuthProvider {
-    return useFakeBackend ? fakeAuth : new SupabaseAuthProvider();
+    if (useFakeBackend) return new FakeAuthProvider();
+    return new SupabaseAuthProvider();
 }
 
 export function createDatabase(): IDatabase {
-    return useFakeBackend ? fakeDatabase : new SupabaseDatabase();
+    if (useFakeBackend) return new FakeDatabase();
+    return new SupabaseDatabase();
 }

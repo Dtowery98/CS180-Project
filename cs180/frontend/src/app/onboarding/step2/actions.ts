@@ -1,8 +1,6 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
-import { createDatabase } from "@/services/providers";
-
+import { createAuthProvider, createDatabase } from "@/services/providers";
 import type { SectionResult } from "@/services/types";
 
 type ActionResult = {
@@ -21,9 +19,10 @@ export async function addSection(
     termCode: string,
     crn: string
 ): Promise<ActionResult> {
-    const supabase = await createClient();
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const auth = createAuthProvider();
+
+    const user = await auth.getCurrentUser();
 
     if (!user) {
         return { error: "Please log in to add your sections" };
@@ -37,6 +36,7 @@ export async function addSection(
         return {};
     } catch (error) {
         console.error("addSection error:", error);
+
         return { error: "Couldn't add section" };
     }
 }
@@ -45,9 +45,10 @@ export async function removeSection(
     termCode: string,
     crn: string
 ): Promise<ActionResult> {
-    const supabase = await createClient();
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const auth = createAuthProvider();
+
+    const user = await auth.getCurrentUser();
 
     if (!user) {
         return { error: "Please log in to remove your sections" };
@@ -61,14 +62,15 @@ export async function removeSection(
         return {};
     } catch (error) {
         console.error("removeSection error:", error);
+
         return { error: "Couldn't remove section" };
     }
 }
 
 export async function getMySections(): Promise<SectionResult[]> {
-    const supabase = await createClient();
+    const auth = createAuthProvider();
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await auth.getCurrentUser();
 
     if (!user) {
         return [];

@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import type { IAuthProvider } from "./IAuthProvider";
-import type { AuthResult } from "../types";
+import type { AuthResult, User } from "../types";
 
 export class SupabaseAuthProvider implements IAuthProvider {
     async login(email: string, password: string): Promise<AuthResult> {
@@ -49,5 +49,30 @@ export class SupabaseAuthProvider implements IAuthProvider {
             },
             error: null
         };
+    }
+
+    async getCurrentUser(): Promise<User | null> {
+        const supabase = await createClient();
+
+        const { data, error } = await supabase.auth.getUser();
+
+        if (error || !data.user) {
+            return null;
+        }
+
+        return {
+            id: data.user.id,
+            email: data.user.email ?? ""
+        };
+    }
+
+    async logout(): Promise<void> {
+        const supabase = await createClient();
+
+        const { error } = await supabase.auth.signOut();
+
+        if (error) {
+            throw error;
+        }
     }
 }

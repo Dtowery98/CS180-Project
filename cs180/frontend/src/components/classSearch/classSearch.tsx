@@ -2,13 +2,13 @@
 
 import {useEffect, useState} from "react";
 import SearchBar from "@/components/ui/searchBar";
+import type { SectionResult } from "@/services/types"
 
 import {
     searchSections,
     addSection,
     removeSection,
     getMySections,
-    type SectionResult,
 }
     from "@/app/onboarding/step2/actions";
 
