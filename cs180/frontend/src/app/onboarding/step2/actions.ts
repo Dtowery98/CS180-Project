@@ -20,7 +20,7 @@ export type SectionResult={
 };
 export async function searchSections(query: string): Promise<SectionResult[]> {
     
-
+    const search = query.trim().replace(/^([A-Za-z]+)\s*(\d)/, "$1 $2");
     const supabase = await createClient();
     const {data,error} = await supabase
         .from("sections")
@@ -36,7 +36,7 @@ export async function searchSections(query: string): Promise<SectionResult[]> {
             meetings(days, start_time, end_time, building, room)
             `
         )
-        .ilike("course_code", `%${query}%`)
+        .ilike("course_code", `%${search}%`)
  
        .limit(10);
 
