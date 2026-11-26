@@ -20,10 +20,12 @@ const Login = () => {
         setError("");
 
         try {
-            const user = await login(email, password);
+            const result = await login(email, password);
 
-            if (user.error) {
-                setError(user.error ?? "Something went wrong. Please try again.")
+            if (result.error) {
+                setError(result.error ?? "Something went wrong. Please try again.")
+            } else {
+                router.push("/dashboard")
             }
         } catch {
             setError("Something went wrong. Please try again.");
