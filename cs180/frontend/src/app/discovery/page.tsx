@@ -1,40 +1,31 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Calendar from "@/components/ui/calendar"
+import BannerCalendar from "@/components/discovery/bannerCalendar";
+import DiscoveryCircle from "@/components/discovery/discoveryCircle";
 import SearchBar from "@/components/ui/searchBar";
 
-export default function Discovery(){
-    return(
-
-        <div className="min-h-screen w-full px-4 pb-8 pt-4 sm:px-8">
-            <div className="flex items-center justify-between gap-4">
+export default function Discovery() {
+    return (
+        <div className="flex h-dvh w-full flex-col overflow-hidden bg-[#050505] px-4 py-3 sm:px-8 lg:px-[3.25vw] lg:pb-[calc(14*var(--frame-unit))] lg:pt-[calc(11*var(--frame-unit))] lg:[--frame-unit:min(0.069444vw,0.097656dvh)]">
+            <header className="grid shrink-0 grid-cols-[1fr_auto] items-center gap-x-4 gap-y-3 md:grid-cols-[minmax(max-content,1fr)_minmax(0,520px)_minmax(max-content,1fr)]">
                 {/* Logo */}
                 <div className="flex flex-col items-start">
-                    <img src="/rSpaceLogo.svg" alt="R'Space logo" className="h-auto w-24 object-contain"/>
-                    <h1 className="text-[#A3A3A3]">
+                    <img src="/rSpaceLogo.svg" alt="R'Space logo" className="h-auto w-20 object-contain lg:w-[clamp(80px,calc(140*var(--frame-unit)),112px)]" />
+                    <p className="text-[11px] font-normal text-[#A3A3A3]">
                         Made by BARD
-                    </h1>
+                    </p>
                 </div>
-                <div className="inline-flex shrink-0 items-center gap-3 border [background:rgba(255,255,255,0.05)] shadow-[0_8px_24px_-8px_rgba(0,0,0,0.40)] pl-2 pr-4 py-2 rounded-[999px] border-solid border-[rgba(255,255,255,0.10)]">
-                    <div
-                        className="size-[58px] shrink-0 bg-center bg-cover bg-no-repeat" style={{ backgroundImage: "url('/Circular-visual-01.svg')" }}/>
-                    <h1 className="whitespace-nowrap text-gray-50 [text-shadow:0_1px_2px_rgba(0,0,0,0.50)] text-lg not-italic font-semibold leading-[normal]">
+                <SearchBar className="col-span-2 row-start-2 mx-auto max-w-md md:col-span-1 md:col-start-2 md:row-start-1 lg:max-w-[min(520px,calc(520*var(--frame-unit)))]" />
+                <div className="col-start-2 row-start-1 inline-flex items-center gap-2.5 justify-self-end rounded-full border border-white/10 bg-white/5 py-1.5 pl-1.5 pr-3.5 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.40)] md:col-start-3">
+                    <img src="/Circular-visual-01.svg" alt="" className="size-9 shrink-0 rounded-full object-cover sm:size-11" />
+                    <span className="whitespace-nowrap text-sm font-medium leading-none text-gray-50 sm:text-base">
                         @joe who
-                    </h1>
+                    </span>
                 </div>
+            </header>
+            <div className="mx-auto mt-3 grid min-h-0 w-full flex-1 grid-rows-[minmax(0,1.2fr)_minmax(0,1fr)] gap-3 lg:mt-[calc(17*var(--frame-unit))] lg:max-w-[calc(1220px+12*var(--frame-unit))] lg:grid-cols-[minmax(0,70fr)_minmax(0,52fr)] lg:grid-rows-[minmax(0,1fr)] lg:gap-[calc(12*var(--frame-unit))]">
+                <BannerCalendar />
+                <DiscoveryCircle />
             </div>
-            <SearchBar className="mx-auto mt-8 max-w-md" />
-            <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.75fr)_minmax(0,1fr)]">
-                <div className="min-w-0 [&>div]:max-w-none">
-                    <Calendar />
-                </div>
-                <section className="min-w-0">
-                    <h1 className="text-center text-3xl font-normal text-white sm:text-[40px]">Your Circle</h1>
-                    <div className="mx-auto mt-2 h-[45px] w-full max-w-[308px] rounded-[50px] bg-[#1a1a1a]" />
-                </section>
-            </div>
-
         </div>
-)
+    );
 }
