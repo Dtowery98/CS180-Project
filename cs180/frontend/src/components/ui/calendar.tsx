@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
+import Lenis from "lenis";
 
 // ---- Types ------------------------------------------------------------
 type Day = "Mon" | "Tue" | "Wed" | "Thu" | "Fri";
@@ -23,6 +24,7 @@ interface Slot {
 interface CalendarProps {
   initialEvents?: CalendarEvent[];
   extraEvents?: CalendarEvent[];// events passed in from outside
+  fillHeight?: boolean;
 }
 
 // ---- Layout constants -------------------------------------------------
@@ -51,7 +53,7 @@ function formatHour(h: number): string {
 }
 
 // ---- Component --------------------------------------------------------
-export default function Calendar({ initialEvents = [], extraEvents = [] }: CalendarProps) {
+export default function Calendar({ initialEvents = [], extraEvents = [], fillHeight = false }: CalendarProps) {
   const [events, setEvents] = useState<CalendarEvent[]>(initialEvents);
   const [draft, setDraft] = useState<Slot | null>(null); // open form's slot
   const [endHour, setEndHour] = useState(1);
@@ -65,7 +67,14 @@ export default function Calendar({ initialEvents = [], extraEvents = [] }: Calen
     const el = scrollRef.current;
     if (!el) return;
     const center = ((FOCUS_START + FOCUS_END) / 2 - firstHour) * ROW_HEIGHT;
-    el.scrollTop = center - (VISIBLE_ROWS * ROW_HEIGHT) / 2;
+    el.scrollTo({ top: center - el.clientHeight / 2, behavior: "instant" });
+    const scroll = new Lenis({
+      wrapper: el,
+      content: el.firstElementChild ?? el,
+      autoRaf: true,
+      respectReducedMotion: true,
+    });
+    return () => scroll.destroy();
   }, []);
 
   // A slot is taken if ANY event covers it, not just one starting there.
@@ -119,9 +128,9 @@ export default function Calendar({ initialEvents = [], extraEvents = [] }: Calen
     : [];
 
   return (
-    <div className="w-full max-w-5xl rounded-xl bg-black p-4 text-white">
+    <div className={`w-full rounded-xl p-4 text-white ${fillHeight ? "flex h-full min-h-0 flex-col" : "max-w-5xl bg-black"}`}>
       {/* Header row: "Time" + weekdays (stays fixed while the body scrolls) */}
-      <div className="grid grid-cols-[80px_repeat(5,1fr)] border-b border-neutral-800 pb-2">
+      <div className="panel-scrollbar grid shrink-0 grid-cols-[80px_repeat(5,1fr)] overflow-y-hidden border-b border-neutral-800 pb-2">
         <div className="text-sm text-neutral-500">Time</div>
         {DAYS.map((d) => (
           <div key={d} className="text-center font-semibold">
@@ -130,11 +139,11 @@ export default function Calendar({ initialEvents = [], extraEvents = [] }: Calen
         ))}
       </div>
 
-      {/* Scrollable body: exactly 10 rows tall */}
+      {/* Scrollable body */}
       <div
         ref={scrollRef}
-        className="overflow-y-auto"
-        style={{ height: VISIBLE_ROWS * ROW_HEIGHT }}
+        className={`panel-scrollbar overflow-y-auto overscroll-y-contain ${fillHeight ? "min-h-0 flex-1" : ""}`}
+        style={fillHeight ? undefined : { height: VISIBLE_ROWS * ROW_HEIGHT }}
       >
         <div className="grid grid-cols-[80px_repeat(5,1fr)]">
           {/* Column 1: time labels */}

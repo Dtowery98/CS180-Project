@@ -1,17 +1,17 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
-import type { AuthState } from "@/services/types";
 import { createAuthProvider, createDatabase } from "@/services/providers";
 import { signupService } from "@/services/auth/authService";
+
+import type { AuthResult } from "@/services/types";
 
 export async function signup(
     email: string,
     password: string,
     fullName: string
-): Promise<AuthState> {
+): Promise<AuthResult> {
 
     const auth = createAuthProvider();
     const db = createDatabase();
@@ -25,9 +25,10 @@ export async function signup(
     );
 
     if (result.error) {
-        return { error: result.error };
+        return result;
     }
 
     revalidatePath("/", "layout");
-    redirect("/");
+
+    return result;
 }

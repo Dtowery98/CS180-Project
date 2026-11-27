@@ -1,15 +1,11 @@
 "use client";
 // src/app/onboarding/step2.tsx
 import OnboardingNavbar from "@/components/onboardingNav/onboardingNav";
-import Button from "@/components/ui/button";
 import Calendar from "@/components/ui/calendar";
-import SearchBar from "@/components/ui/searchBar";
-import { searchSections } from "./actions";
-import { useRouter } from "next/dist/client/components/navigation";
 import ClassSearch from "@/components/classSearch/classSearch";
- import { useState } from "react";
-   import type { SectionResult } from "./actions";
-   import { sectionsToEvents } from "@/utils/schedule";
+import { useState } from "react";
+import type { SectionResult } from "@/services/types";
+import { sectionsToEvents } from "@/utils/schedule";
 
 export default function OnboardingPage() {
      const [mySections, setMySections] = useState<SectionResult[]>([]);
