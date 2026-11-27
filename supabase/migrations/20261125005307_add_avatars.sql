@@ -5,10 +5,7 @@ alter table public.profiles add column avatar_url text;
 insert into storage.buckets (id, name, public)
 values ('avatars', 'avatars', true);
 
--- Anyone can view avatars
-create policy "Avatars are publicly viewable"
-  on storage.objects for select
-  using (bucket_id = 'avatars');
+
 
 -- You can only upload into your own folder: avatars/<your user id>/...
 create policy "Users can upload their own avatar"
