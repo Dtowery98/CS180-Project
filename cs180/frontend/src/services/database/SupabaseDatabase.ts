@@ -49,6 +49,7 @@ export class SupabaseDatabase implements IDatabase {
     }
 
     async searchSections(query: string): Promise<SectionResult[]> {
+       const search = query.trim().replace(/^([A-Za-z]+)\s*(\d)/, "$1 $2");
         const supabase = await createClient();
 
         const { data, error } = await supabase
@@ -63,7 +64,7 @@ export class SupabaseDatabase implements IDatabase {
                 courses(title),
                 meetings(days, start_time, end_time, building, room)
             `)
-            .ilike("course_code", `%${query}%`)
+            .ilike("course_code", `%${search}%`)
             .limit(10);
 
         if (error) throw error;
