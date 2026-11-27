@@ -16,12 +16,43 @@ body:has([data-login-page]) {
   background-color: #000;
 }
 
+.panel-scrollbar {
+  scrollbar-gutter: stable;
+}
+
+.panel-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.panel-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.panel-scrollbar::-webkit-scrollbar-thumb {
+  background: #383737;
+  border-radius: 999px;
+}
+
+.panel-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555454;
+}
+
+.panel-scrollbar::-webkit-scrollbar-button {
+  display: none;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  .panel-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #383737 transparent;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-plus-jakarta-sans);
+  --font-heading: var(--font-plus-jakarta-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
