@@ -10,6 +10,12 @@ export type Profile = {
     avatar_url?: string | null;
 };
 
+// Just what the club picker needs
+export type ClubOption = {
+    id: number;
+    name: string;
+};
+
 export type AuthResult = {
     user: User | null;
     error: string | null;

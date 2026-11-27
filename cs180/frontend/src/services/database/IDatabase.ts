@@ -5,7 +5,8 @@ import type {
     Meeting,
     StudentSection,
     Club,
-    SectionResult
+    SectionResult,
+    ClubOption
 } from "../types";
 
 export interface IDatabase {
@@ -35,4 +36,7 @@ export interface IDatabase {
 
     // Clubs
     getAllClubs(): Promise<Club[]>;
+    getClubOptions(): Promise<ClubOption[]>;
+    getMyClubIds(userId: string): Promise<number[]>;
+    setMyClubs(userId: string, clubIds: number[]): Promise<void>;
 }
