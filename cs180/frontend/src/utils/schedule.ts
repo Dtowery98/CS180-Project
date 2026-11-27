@@ -1,5 +1,5 @@
 import type { CalendarEvent } from "@/components/ui/calendar";
-import type { SectionResult } from "@/app/onboarding/step2/actions";
+import type { SectionResult } from "@/services/types"
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"] as const;
 const COLORS = ["bg-teal-500", "bg-orange-500", "bg-red-500", "bg-lime-300 text-black", "bg-indigo-300 text-black"];

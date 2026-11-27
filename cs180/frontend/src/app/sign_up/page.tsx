@@ -18,10 +18,12 @@ const SignUp = () => {
         setError("");
 
         try {
-            const user = await signup(email, password, name);
+            const result = await signup(email, password, name);
 
-            if (user.error) {
-                setError(user.error ?? "Something went wrong. Please try again.")
+            if (result.error) {
+                setError(result.error ?? "Something went wrong. Please try again.")
+            } else {
+                router.push("/onboarding/step1")
             }
         } catch {
             setError("Something went wrong. Please try again.");

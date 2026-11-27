@@ -1,9 +1,16 @@
+import { cookies } from "next/headers";
+
 import type { IAuthProvider } from "./IAuthProvider";
 import type { AuthResult, User } from "../types";
 
+const COOKIE_NAME = "fake-auth-user-id";
+
 export class FakeAuthProvider implements IAuthProvider {
-    // map allows look up by email
+
+    // Stores email -> user and password
     private credentials: Map<string, { user: User; password: string }>;
+
+    private nextUserId = 4;
 
     constructor() {
         this.credentials = new Map([
@@ -32,7 +39,9 @@ export class FakeAuthProvider implements IAuthProvider {
     }
 
     async login(email: string, password: string): Promise<AuthResult> {
-        const account = this.credentials.get(email);
+        const normalizedEmail = email.trim().toLowerCase();
+
+        const account = this.credentials.get(normalizedEmail);
 
         if (!account || account.password !== password) {
             return {
@@ -41,6 +50,17 @@ export class FakeAuthProvider implements IAuthProvider {
             };
         }
 
+        // Create a session for this browser.
+        const cookieStore = await cookies();
+
+        cookieStore.set(COOKIE_NAME, account.user.id, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+            maxAge: 60 * 60 * 24 * 7
+        });
+
         return {
             user: account.user,
             error: null
@@ -48,7 +68,9 @@ export class FakeAuthProvider implements IAuthProvider {
     }
 
     async signup(email: string, password: string): Promise<AuthResult> {
-        if (this.credentials.has(email)) {
+        const normalizedEmail = email.trim().toLowerCase();
+
+        if (this.credentials.has(normalizedEmail)) {
             return {
                 user: null,
                 error: "An account with this email already exists"
@@ -56,18 +78,54 @@ export class FakeAuthProvider implements IAuthProvider {
         }
 
         const user: User = {
-            id: `user-${this.credentials.size + 1}`,
-            email
+            id: `user-${this.nextUserId++}`,
+            email: normalizedEmail
         };
 
-        this.credentials.set(email, {
+        this.credentials.set(normalizedEmail, {
             user,
             password
+        });
+
+        // Automatically log in the newly created account.
+        const cookieStore = await cookies();
+
+        cookieStore.set(COOKIE_NAME, user.id, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+            maxAge: 60 * 60 * 24 * 7
         });
 
         return {
             user,
             error: null
         };
+    }
+
+    async getCurrentUser(): Promise<User | null> {
+        const cookieStore = await cookies();
+
+        const userId = cookieStore.get(COOKIE_NAME)?.value;
+
+        if (!userId) {
+            return null;
+        }
+
+        // Find the account associated with the cookie.
+        for (const account of this.credentials.values()) {
+            if (account.user.id === userId) {
+                return account.user;
+            }
+        }
+
+        return null;
+    }
+
+    async logout(): Promise<void> {
+        const cookieStore = await cookies();
+
+        cookieStore.delete(COOKIE_NAME);
     }
 }
