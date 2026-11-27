@@ -13,6 +13,7 @@ export interface IDatabase {
     getProfile(userId: string): Promise<Profile | null>;
     getAllProfiles(): Promise<Profile[]>;
     createProfile(profile: Profile): Promise<Profile>;
+    setAvatar(userId: string, image: Buffer): Promise<string>;
 
     // Courses and sections
     searchSections(query: string): Promise<SectionResult[]>;

@@ -313,6 +313,17 @@ export class FakeDatabase implements IDatabase {
         return { ...profile };
     }
 
+        async setAvatar(userId: string, image: Buffer): Promise<string> {
+        const profile = this.profiles.find(p => p.id === userId);
+        if (!profile) throw new Error("Profile not found");
+
+        // No real storage in tests: just record a pretend address
+        const url = `fake://avatars/${userId}.png`;
+        profile.avatar_url = url;
+        return url;
+    }
+
+    
     // -------------------------
     // SECTION SEARCH
     // -------------------------
