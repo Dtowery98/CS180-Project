@@ -21,3 +21,10 @@ create policy "Users can update their own avatar"
   on storage.objects for update
   to authenticated
   using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- You can only look up files in your own folder (needed to replace your photo).
+-- Viewing photos doesn't need this: the bucket is public, so its URLs work for everyone.
+create policy "Users can read their own avatar files"
+  on storage.objects for select
+  to authenticated
+  using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);

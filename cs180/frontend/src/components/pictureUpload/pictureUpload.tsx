@@ -10,6 +10,7 @@
  *   import FileUpload from "@/components/shadcn-space/file-upload/file-upload-05";
  *   <FileUpload />
  */
+const OUTPUT_SIZE = 320; // size of the saved photo, px
 
 import {
   useCallback,
@@ -130,7 +131,7 @@ function Button({ variant = "primary", className, ...props }: ButtonProps) {
 /* FileUpload                                                          */
 /* ------------------------------------------------------------------ */
 
-export default function FileUpload() {
+export default function FileUpload({ onPhotoChange }: { onPhotoChange?: (photo: string | null) => void }) {
   const [stage, setStage] = useState<Stage>("idle");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -302,6 +303,46 @@ export default function FileUpload() {
     width: naturalSize.width * displayScale * zoom,
     height: naturalSize.height * displayScale * zoom,
   };
+
+    /* ---- Report the cropped photo to the parent ---- */
+
+  // Whenever the crop changes, wait 300 ms for the user to stop adjusting,
+  // then draw exactly what's inside the circle onto a 320x320 canvas and send it up.
+  useEffect(() => {
+    if (!onPhotoChange) return;
+    if (stage !== "editing" || !imageUrl) {
+      onPhotoChange(null);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      loadImage(imageUrl).then((img) => {
+        const canvas = document.createElement("canvas");
+        canvas.width = OUTPUT_SIZE;
+        canvas.height = OUTPUT_SIZE;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        const outputScale = OUTPUT_SIZE / frameSize;
+
+        // Only draw inside a circle
+        ctx.beginPath();
+        ctx.arc(OUTPUT_SIZE / 2, OUTPUT_SIZE / 2, OUTPUT_SIZE / 2, 0, Math.PI * 2);
+        ctx.clip();
+
+        // Same moves as the on-screen preview: pan, then rotate, then scale
+        ctx.translate(OUTPUT_SIZE / 2 + offset.x * outputScale, OUTPUT_SIZE / 2 + offset.y * outputScale);
+        ctx.rotate((rotation * Math.PI) / 180);
+        const scale = displayScale * zoom * outputScale;
+        ctx.scale(scale, scale);
+        ctx.drawImage(img, -naturalSize.width / 2, -naturalSize.height / 2);
+
+        onPhotoChange(canvas.toDataURL("image/png"));
+      });
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [stage, imageUrl, zoom, rotation, offset, frameSize, displayScale, naturalSize, onPhotoChange]);
 
   /* ---- Render ---- */
 
