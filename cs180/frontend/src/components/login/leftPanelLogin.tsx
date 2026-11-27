@@ -1,4 +1,4 @@
-import Spinner from "@/components/login/peopleSpin"
+import { PublicProfileIllustration } from "@/components/profile-illustration/public-profile-illustration";
 
 const LeftPanelLogin = () => {
   return (
@@ -24,8 +24,7 @@ const LeftPanelLogin = () => {
           R’Space Circle
         </h1>
         <div className="mt-4 flex w-full justify-center -translate-y-1">
-          <Spinner>
-          </Spinner>
+          <PublicProfileIllustration loop />
         </div>
       </div>
     </div>
