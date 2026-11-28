@@ -7,7 +7,8 @@ import type {
     Meeting,
     StudentSection,
     Club,
-    SectionResult
+    SectionResult,
+    ClubOption
 } from "../types";
 
 export class FakeDatabase implements IDatabase {
@@ -28,6 +29,7 @@ export class FakeDatabase implements IDatabase {
             full_name: "Taylor Brown"
         }
     ];
+    
 
     private courses: Course[] = [
         {
@@ -250,6 +252,8 @@ export class FakeDatabase implements IDatabase {
         }
     ];
     
+ private studentClubs: { student_id: string; club_id: number }[] = [];
+
     private clubs: Club[] = [
         {
             id: 1,
@@ -323,7 +327,7 @@ export class FakeDatabase implements IDatabase {
         return url;
     }
 
-    
+
     // -------------------------
     // SECTION SEARCH
     // -------------------------
@@ -451,5 +455,26 @@ export class FakeDatabase implements IDatabase {
             ...club,
             categories: club.categories ? [...club.categories] : null
         }));
+        
+    }
+
+    async getClubOptions(): Promise<ClubOption[]> {
+        return this.clubs
+            .map(club => ({ id: club.id, name: club.name.trim() }))
+            .sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    async getMyClubIds(userId: string): Promise<number[]> {
+        return this.studentClubs
+            .filter(row => row.student_id === userId)
+            .map(row => row.club_id);
+    }
+
+    async setMyClubs(userId: string, clubIds: number[]): Promise<void> {
+        this.studentClubs = this.studentClubs.filter(row => row.student_id !== userId);
+        for (const clubId of new Set(clubIds)) {
+            this.studentClubs.push({ student_id: userId, club_id: clubId });
+        }
     }
 }
+     

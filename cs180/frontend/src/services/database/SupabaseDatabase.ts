@@ -4,7 +4,8 @@ import type { IDatabase } from "./IDatabase";
 import type {
     Profile,
     Club,
-    SectionResult
+    SectionResult,
+    ClubOption
 } from "../types";
 
 export class SupabaseDatabase implements IDatabase {
@@ -169,5 +170,48 @@ export class SupabaseDatabase implements IDatabase {
         if (updateError) throw updateError;
 
         return avatarUrl;
+    }
+        // Every club's id + name, alphabetical (light enough to send to the browser)
+    async getClubOptions(): Promise<ClubOption[]> {
+        const supabase = await createClient();
+        const { data, error } = await supabase
+            .from("clubs")
+            .select("id, name")
+            .order("name");
+        if (error) throw error;
+        // a few names in the data have stray spaces, e.g. " Free Enterprise..."
+        return data.map(club => ({ id: club.id, name: club.name.trim() }));
+    }
+
+    // Ids of the clubs this student picked
+    async getMyClubIds(userId: string): Promise<number[]> {
+        const supabase = await createClient();
+        const { data, error } = await supabase
+            .from("student_clubs")
+            .select("club_id")
+            .eq("student_id", userId);
+        if (error) throw error;
+        return data.map(row => row.club_id);
+    }
+
+    // Replace this student's clubs with exactly this list
+    async setMyClubs(userId: string, clubIds: number[]): Promise<void> {
+        const supabase = await createClient();
+
+        // 1. clear their old picks
+        const { error: deleteError } = await supabase
+            .from("student_clubs")
+            .delete()
+            .eq("student_id", userId);
+        if (deleteError) throw deleteError;
+
+        // 2. insert the new picks (nothing to insert if they picked none)
+        const uniqueIds = [...new Set(clubIds)];
+        if (uniqueIds.length === 0) return;
+
+        const { error: insertError } = await supabase
+            .from("student_clubs")
+            .insert(uniqueIds.map(clubId => ({ student_id: userId, club_id: clubId })));
+        if (insertError) throw insertError;
     }
 }

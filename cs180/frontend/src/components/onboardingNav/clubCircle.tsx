@@ -1,13 +1,15 @@
 "use client";
 import Button from "@/components/ui/button";
 type ClubCircleProps = {
+    clubs: string[];          // NEW: the clubs to show (up to 6)
+    totalMatches?: number;    // NEW: how many clubs match in total (for the "found N results" text)
     searchQuery?: string;
     selectedClubs: string[];
     onToggleClub: (club: string) => void;
 };
 
-function ClubCircle({ searchQuery = "", selectedClubs, onToggleClub }: ClubCircleProps){
-     const clubs = ["Computer Science", "Robotics Club", "Debate Club", "Art Club", "Music Club", "Drama Club"]
+function ClubCircle({ clubs, totalMatches, searchQuery = "", selectedClubs, onToggleClub }: ClubCircleProps){ 
+   
      const query = searchQuery.trim().toLowerCase();
      const matchingClubs = clubs.filter((club) => club.toLowerCase().includes(query));
 
@@ -58,10 +60,10 @@ function ClubCircle({ searchQuery = "", selectedClubs, onToggleClub }: ClubCircl
         }
         </div>
         </div>
-        <h6 aria-live="polite" className="flex w-full shrink-0 flex-col justify-center text-sm text-[#B0B2B8] sm:text-base">
-            {matchingClubs.length === 1
+               <h6 aria-live="polite" className="flex w-full shrink-0 flex-col justify-center text-sm text-[#B0B2B8] sm:text-base">
+            {(totalMatches ?? matchingClubs.length) === 1
                 ? "found only one result"
-                : `found ${matchingClubs.length} results`}
+                : `found ${totalMatches ?? matchingClubs.length} results`}
         </h6>
         </>
     )
