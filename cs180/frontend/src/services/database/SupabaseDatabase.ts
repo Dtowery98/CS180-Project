@@ -147,4 +147,27 @@ export class SupabaseDatabase implements IDatabase {
 
         return data as Club[];
     }
+        async setAvatar(userId: string, image: Buffer): Promise<string> {
+        const supabase = await createClient();
+        const path = `${userId}/avatar.png`;
+
+        // Uploads new avatar replacing a old one if there is one
+        const { error: uploadError } = await supabase.storage
+            .from("avatars")
+            .upload(path, image, { contentType: "image/png", upsert: true });
+        if (uploadError) throw uploadError;
+
+        //  gives each upload a new address so browsers don't show the old cached photo
+        const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+        const avatarUrl = `${data.publicUrl}?v=${Date.now()}`;
+
+        // reemember the address on the profile
+        const { error: updateError } = await supabase
+            .from("profiles")
+            .update({ avatar_url: avatarUrl })
+            .eq("id", userId);
+        if (updateError) throw updateError;
+
+        return avatarUrl;
+    }
 }

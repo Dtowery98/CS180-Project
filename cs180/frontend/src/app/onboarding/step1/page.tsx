@@ -1,10 +1,35 @@
 "use client";
+
 // src/app/onboarding/step1.tsx
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import OnboardingNavbar from "@/components/onboardingNav/onboardingNav";
 import PictureUpload from "@/components/pictureUpload/pictureUpload";
 import Button from "@/components/ui/button";
-  
+import { uploadAvatar } from "./actions";
+
 export default function OnboardingPage() {
+  const router = useRouter();
+  const [photo, setPhoto] = useState<string | null>(null); // latest cropped photo from the uploader
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleContinue() {
+    if (!photo) {
+      router.push("/onboarding/step2"); // no photo picked: same as Skip
+      return;
+    }
+    setSaving(true);
+    setError("");
+    const result = await uploadAvatar(photo);
+    setSaving(false);
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
+    router.push("/onboarding/step2");
+  }
+
   return (
     <main className="flex h-dvh w-full flex-col overflow-hidden bg-[#050505] p-4 sm:px-8 sm:py-5">
       <div className="w-full shrink-0 sm:h-10">
@@ -16,10 +41,16 @@ export default function OnboardingPage() {
           <p className="mt-1 text-base text-neutral-400 sm:text-xl">upload a photo</p>
         </div>
         <div className="flex min-h-0 w-full flex-1 items-center justify-center">
-          <PictureUpload />
+          <PictureUpload onPhotoChange={setPhoto} />
         </div>
         <div className="flex w-full max-w-[520px] shrink-0 flex-col gap-2">
-          <Button text="Continue" href="/onboarding/step2" className="h-[clamp(44px,7dvh,60px)] w-full rounded-full bg-[#F5F7FA] text-base text-[#050505] sm:text-xl" />
+          {error && <p className="text-sm text-red-500">{error}</p>}
+          <Button
+            text={saving ? "Saving..." : "Continue"}
+            onClick={handleContinue}
+            disabled={saving}
+            className="h-[clamp(44px,7dvh,60px)] w-full rounded-full bg-[#F5F7FA] text-base text-[#050505] sm:text-xl"
+          />
           <Button text="Skip" href="/onboarding/step2" className="h-[clamp(44px,7dvh,60px)] w-full rounded-full bg-[#121212] text-base text-[#F5F7FA] sm:text-xl" />
         </div>
       </section>
